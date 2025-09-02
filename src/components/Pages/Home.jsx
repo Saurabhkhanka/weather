@@ -1,4 +1,4 @@
-import { React, useState } from 'react'
+import {useEffect, useRef, useState } from 'react'
 import axios from 'axios'
 import { weatherTimeFormator } from '../../helper/helper.js'
 
@@ -8,6 +8,7 @@ const Home = () => {
   const [temp, setTemp] = useState(0)
   const [time, setTime] = useState({})
   const [weather, setWeather] = useState()
+  const searchInput = useRef(null)
 
 
 
@@ -33,6 +34,13 @@ const Home = () => {
   }
 
   const handleChange = () => {
+    const cityName = searchInput.current.value.charAt(0).toUpperCase() + searchInput.current.value.slice(1).toLowerCase()
+    setCity(cityName)
+    searchInput.current.value = null
+  }
+  useEffect(()=>{
+    if(!city) return
+
     function kelvintotemp(value) {
       return value - 273.15;
     }
@@ -47,18 +55,17 @@ const Home = () => {
           setTime(time)
           setData(res.data)
           setWeather(res.data.weather?.[0]?.main)
-          // console.log(res.data);
         }
       }).catch((err) => {
         console.log(err);
       })
-  }
+  },[city])
   return (
     <>
       <div className=' vh-100 vw-100 d-flex flex-column justify-content-center align-item-center'>
         <div className=' text-center '>
           <form className="d-flex m-auto" style={{ color: "white", width: "200px" }} role="search">
-            <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" value={city} onChange={(e) => { setCity(e.target.value) }} />
+            <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" ref={searchInput} />
             <button className="btn btn-outline-success" type="submit" onClick={(e) => { handleChange(e.preventDefault()) }}>Search</button>
           </form>
           <div className="card m-auto mt-2 bg-primary rounded-4 text-white" style={{ width: "fit-content", height: 'fit-content', minWidth: "350px" }}>
